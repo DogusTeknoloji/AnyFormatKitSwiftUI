@@ -346,19 +346,19 @@ public struct FormatTextField: UIViewRepresentable {
 
         // MARK: Toolbar Button Actions
 
-        @objc func previousButtonTapped() {
+        @objc public func previousButtonTapped() {
             onPrevious?()
         }
-
-        @objc func nextButtonTapped() {
+        
+        @objc public func nextButtonTapped() {
             onNext?()
         }
-
-        @objc func doneButtonTapped() {
+        
+        @objc public func doneButtonTapped() {
             textField?.resignFirstResponder()
         }
-
-        @objc func customButtonTapped() {
+        
+        @objc public func customButtonTapped() {
             onCustomAction?()
         }
     }
