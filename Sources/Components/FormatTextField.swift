@@ -20,7 +20,7 @@ public struct FormatTextField: UIViewRepresentable {
     private let placeholder: String?
     @Binding public var unformattedText: String
     
-    // MARK: - Appearence
+    // MARK: - Appearance
     
     private var font: UIFont?
     private var textColor: UIColor?
@@ -43,6 +43,17 @@ public struct FormatTextField: UIViewRepresentable {
     // MARK: - Dependencies
     
     private let formatter: (TextInputFormatter & TextFormatter & TextUnformatter)
+    
+    // MARK: - Toolbar
+    
+    private var toolbarHostingController: UIHostingController<AnyView>?
+    
+    public func keyboardToolbar<Content: View>(@ViewBuilder content: () -> Content) -> Self {
+        var copy = self
+        let toolbarView = content()
+        copy.toolbarHostingController = UIHostingController(rootView: AnyView(toolbarView))
+        return copy
+    }
     
     // MARK: - Life cycle
     
@@ -72,6 +83,14 @@ public struct FormatTextField: UIViewRepresentable {
         uiView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         uiView.delegate = context.coordinator
         context.coordinator.formatter = formatter
+        
+        if let toolbarHostingController = toolbarHostingController {
+            toolbarHostingController.view.backgroundColor = .clear
+            toolbarHostingController.view.frame = CGRect(x: 0, y: 0, width: uiView.frame.width, height: 44)
+            uiView.inputAccessoryView = toolbarHostingController.view
+            context.coordinator.toolbarHostingController = toolbarHostingController
+        }
+        
         return uiView
     }
     
@@ -89,6 +108,11 @@ public struct FormatTextField: UIViewRepresentable {
         uiView.keyboardType = keyboardType
         uiView.textContentType = textContentType
         updateUIViewTextAlignment(uiView)
+        
+        if let toolbarHostingController = toolbarHostingController {
+            toolbarHostingController.view.frame = CGRect(x: 0, y: 0, width: uiView.frame.width, height: 44)
+            uiView.inputAccessoryView = toolbarHostingController.view
+        }
     }
     
     private func updateUIViewPlaceholder(_ uiView: UIViewType) {
@@ -277,6 +301,8 @@ public struct FormatTextField: UIViewRepresentable {
         public var onTextChange: TextAction?
         public var onClear: VoidAction?
         public var onReturn: VoidAction?
+        
+        var toolbarHostingController: UIHostingController<AnyView>?
         
         init(unformattedText: Binding<String>) {
             self.unformattedText = unformattedText
